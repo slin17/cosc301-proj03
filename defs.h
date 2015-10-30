@@ -118,6 +118,8 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
+int kern_mprotect(int addr, int len);
+int kern_munprotect(int addr, int len);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
@@ -178,6 +180,9 @@ void            switchuvm(struct proc*);
 void            switchkvm(void);
 int             copyout(pde_t*, uint, void*, uint);
 void            clearpteu(pde_t *pgdir, char *uva);
+int do_mprotect(int addr, int len);
+int do_munprotect(int addr, int len);
+
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))

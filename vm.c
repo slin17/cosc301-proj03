@@ -316,7 +316,7 @@ copyuvm(pde_t *pgdir, uint sz)
 
   if((d = setupkvm()) == 0)
     return 0;
-  for(i = 0; i < sz; i += PGSIZE){
+  for(i = PGSIZE; i < sz; i += PGSIZE){
     if((pte = walkpgdir(pgdir, (void *) i, 0)) == 0)
       panic("copyuvm: pte should exist");
     if(!(*pte & PTE_P))
@@ -374,6 +374,48 @@ copyout(pde_t *pgdir, uint va, void *p, uint len)
     buf += n;
     va = va0 + PGSIZE;
   }
+  return 0;
+}
+int 
+do_mprotect(int addr, int len) 
+{
+  
+  
+  int i;
+  for (i = 0; i < len; i++) {
+        pte_t *pte;
+        pde_t *pde = proc->pgdir;
+	//get addr for each loop by addr+i
+        if ((pte = walkpgdir(pde, (void*)addr+i, 0)) == 0) {
+	    return -1;
+        } else {
+		//change writeable bit to 0
+	    *pte = *pte & (~PTE_W);
+        }
+    }
+	//trash TLB
+  lcr3(v2p(proc->pgdir));
+  return 0;
+}
+
+int 
+do_munprotect(int addr, int len) 
+{
+  
+  int i;
+  for (i = 0; i < len; i++) {
+        pte_t *pte;
+        pde_t *pde = proc->pgdir;
+	//get addr for each loop by addr+i
+        if ((pte = walkpgdir(pde, (void*)addr+i, 0)) == 0) {
+	    return -1;
+        } else {
+	//change writeable bit to 1
+	    *pte |= PTE_W;
+        }
+    }
+	//trash TLB
+  lcr3(v2p(proc->pgdir));
   return 0;
 }
 

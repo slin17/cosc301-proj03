@@ -89,3 +89,24 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+
+int
+sys_mprotect(void){
+	int addr; //int to represent addr instead of void*
+	int len;
+	if (argint(0, &addr) < 0 || argint(1, &len) < 0) {//test if fetching the arguments to syscalls is successful
+		return -1;
+	}
+	return kern_mprotect(addr, len);
+}
+
+int sys_munprotect(void) {
+        int addr;  //int to represent addr instead of void*
+	int len;
+	if (argint(0, &addr) < 0 || argint(1, &len) < 0) {//test if fetching the arguments to syscalls is successful
+		return -1;
+	}
+	return kern_munprotect(addr, len);
+}
+
